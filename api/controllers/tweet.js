@@ -1,7 +1,7 @@
 var twitter = require('twitter'),
 	_ = require('underscore');
 	
-exports.types = ['market','stock','share','bond','currency','fund'];
+exports.types = ['market','stock','share','bond','currency','fund','money','equity'];
 
 exports.stream = function() {
 

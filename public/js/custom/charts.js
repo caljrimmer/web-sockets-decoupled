@@ -16,17 +16,23 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 
 		var svg = d3.select(t).append("svg").attr("width", w).attr("height", h);
 		
-		svg.selectAll("rect").data(data).enter().append("rect").attr("x", function(d, i) {
+		svg.selectAll("rect").data(data).enter().append("rect")
+		.attr("x", function(d, i) {
 			return (Math.floor((i / 12)) * (10 + p))
-		}).attr("y", function(d, i) {
+		})
+		.attr("y", function(d, i) {
 			return ((i % 12) * (9 + p))
-		}).attr("width", 10).attr("height", 9).attr("class", function(d) {
-			if (_.has(d, 'placeholder')) {
-				return 'placeholder';
+		})
+		.attr("width", 10)
+		.attr("height", 10)
+		.attr("class", function(d) {
+			if (d.sell) {
+				return 'sell';
 			} else {
-				return 'range-' + d.range;
+				return 'buy';
 			}
-		}).attr("data-value", function(d) {
+		})
+		.attr("data-value", function(d) {
 			if (_.has(d, 'placeholder')) {
 				return 0;
 			} else {

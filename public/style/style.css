@@ -2,9 +2,11 @@
 #chart {
 	width:96%;
 	margin:20px auto 20px;
-	height:200px;
+	height:140px;
 }
 
+#chart svg .sell{fill:rgb(165,0,38)}
+#chart svg .buy{fill:rgb(0,104,55)}                
 
 /*Table*/
 

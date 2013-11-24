@@ -9,8 +9,6 @@ define([
 ], function($, _, Backbone, registry, Tweet, TableRowView, TableTemplate){
 	
     var TableView = Backbone.View.extend({
-	
-		el : $('#canvas'),
 		
 		template : _.template(TableTemplate),
 		

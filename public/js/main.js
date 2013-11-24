@@ -1,12 +1,19 @@
 require.config({
     paths: {
-        'jquery' : 'vendor/jquery-1.10.1.min',
+        'jquery' : 'vendor/jquery-2.0.3.min',
         'underscore' : 'vendor/underscore',
-        'backbone' : 'vendor/backbone',
+        'backbone' : 'vendor/backbone-1.1.0.min',
 		'text' : 'vendor/text',
-		'io' : '/socket.io/socket.io'
+		'd3' : 'vendor/d3',
+		'io' : '/socket.io/socket.io',
+		'charts' : 'custom/charts',
+		'registry' : 'custom/registry',
+		'sockets' : 'custom/sockets'
     },
 	shim: {
+		d3: {
+			exports: 'd3'
+		},
 		underscore: {
 			exports: '_'
 		},

@@ -5,7 +5,8 @@ define([
   'registry',
   'collections/Tweets',
   'views/Table/TableView',
-], function($, _, Backbone, registry, Tweets, TableView){
+  'views/Chart/ChartView'
+], function($, _, Backbone, registry, Tweets, TableView, ChartView){
 	
     var AppView = Backbone.View.extend({
 	
@@ -19,10 +20,17 @@ define([
 		},
 		
 		render : function(types){
+			
+			registry.views.chartView = new ChartView({
+				el : $('#chart')
+			});
+			registry.views.chartView.render();
+			
 			registry.views.tableView = new TableView({
-				types : types
+				el : $('#table')
 			});
 			registry.views.tableView.render();
+			
 		},
 		
 		renderDisconnect : function(){

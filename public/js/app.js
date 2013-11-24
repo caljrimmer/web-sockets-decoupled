@@ -1,10 +1,3 @@
-/**
-* This page has grown too big
-* There is a lot of refactoring to do
-* This app.js should focus purely on getitng the app in state to start.
-*
-*/
-
 define([
   'jquery',  
   'underscore',  

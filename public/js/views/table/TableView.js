@@ -45,7 +45,7 @@ define([
 		  
 	});
 	
-	return TableView
+	return TableView;
 
 });
 

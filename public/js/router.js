@@ -12,8 +12,6 @@ define([
 			'': 'default',
 			'*notFound': 'default'
 		},
-
-		initialize : function(){},
 		
 		default : function(){
 			registry.views.appView = new AppView();

@@ -13,9 +13,11 @@ define([
 		el : $('canvas'),
 		
 		initialize : function(){
+			//The decoupled events from the web sockets (custom/sockets.js) are picked up here.
 			this.listenToOnce(registry.events,"types", this.render);
 			this.listenToOnce(registry.events,"disconnect", this.renderDisconnect);
 			this.listenTo(registry.events,"tweet", this.tweets);
+			//This collection is ever growing with recieved tweet events.
 			registry.collections.tweets = new Tweets();
 		},
 		

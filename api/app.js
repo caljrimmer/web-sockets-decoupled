@@ -39,8 +39,6 @@ app.get('/', function(req, res){
   res.render('index', {});
 }); 
 
-console.log(__dirname + '/../public')
-
 var server = http.createServer(app).listen(5000, function(){
   console.log('Express server listening on port 5000');
 });

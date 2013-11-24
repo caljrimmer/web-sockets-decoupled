@@ -14,8 +14,6 @@ define([
 ], function($,_,Backbone,router, registry){
     
     registry.router = new router();
-	registry.events = _.extend({},Backbone.Events);
-	registry.userAgent = navigator.userAgent.toLowerCase();
 	return registry;
 
 });

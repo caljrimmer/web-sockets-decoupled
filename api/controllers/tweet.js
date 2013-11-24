@@ -16,7 +16,8 @@ exports.stream = function() {
 	
 	    stream.on('data', function(tweet) {
 		
-			var norm = {
+			var norm = {                        
+				id : tweet.id,
 				text : tweet.text.toLowerCase(),
 				sell : false,
 				buy : false,

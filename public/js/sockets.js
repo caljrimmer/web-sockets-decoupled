@@ -12,22 +12,41 @@ define([
   'io'
 ], function($, _, Backbone, registry, io) {
 	
-	var sockets = io.connect('/');
-	
-	sockets.on('connect', function () {
-        
-		var sockets = io.connect('/');
+	var Sockets = function(){
+		
+		var sockets = io.connect('/'),
+			stack = [];
+			
+		var stackCalculate = function(id){
+			if(_.size(stack) <= 10){
+				stack.push(id)
+			}else{
+				stack.shift(id)
+			}
+		}
 
-		sockets.on('types', function (types) {
-			registry.events.trigger('types',types);
+		sockets.on('connect', function () {
+
+			sockets.on('types', function (types) {
+				registry.events.trigger('types',types);
+			});
+
+			sockets.on('tweet', function (tweet) {
+				//Stops any duplication of data emitted from web socket server
+				if(!_.contains(stack,tweet.id)){
+					registry.events.trigger('tweet',tweet);
+					stackCalculate(tweet.id)
+				}
+			});
+			
+			sockets.on('disconnect', function (disconnect) {
+				registry.events.trigger('disconnect',disconnect);
+			});  
+
 		});
+		
+	}
 
-		sockets.on('tweet', function (tweet) {
-			registry.events.trigger('tweet',tweet);
-		});
-
-	});
-
-    return sockets;
+    return Sockets;
 
 });

@@ -18,8 +18,10 @@ require.config({
 });
 	
 require([
-  'app'
-], function(app){
+  'app',
+  'sockets'
+], function(app,Sockets){
 	window.app = app;
+	window.app.sockets = new Sockets;
 	Backbone.history.start();
 }); 

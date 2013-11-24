@@ -3,9 +3,8 @@ define([
   'underscore',
   'backbone',
   'registry',
-  'sockets',
   'views/AppView'
-], function($, _, Backbone, registry, sockets, AppView){
+], function($, _, Backbone, registry, AppView){
 
 	var Router = Backbone.Router.extend({
 
@@ -18,6 +17,7 @@ define([
 		
 		default : function(){
 			registry.views.appView = new AppView();
+			registry.views.appView.render();
 		}
 
 	});

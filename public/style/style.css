@@ -1,3 +1,52 @@
+@font-face {
+font-family: Klinic;
+src: url("font/KlinicSlabMedium.otf") format("opentype");
+}
+
+@font-face {
+font-family: Klinic;
+font-weight:bold;
+src: url("font/KlinicSlabBold.otf") format("opentype");
+}
+
+@font-face {
+font-family: Klinic;
+font-style:italic;
+src: url("font/KlinicSlabMediumIt.otf") format("opentype");
+}
+
+@font-face {
+font-family: Dense;
+src: url("font/Dense-Regular.otf") format("opentype");
+}
+
+@font-face {
+font-family: Fabrica;
+src: url("font/Fabrica.otf") format("opentype");
+}
+
+@font-face {
+font-family: Nexa;
+src: url("font/NexaLight.otf") format("opentype");
+}
+
+@font-face {
+font-family: Nexa;
+font-weight:bold;
+src: url("font/NexaBold.otf") format("opentype");
+}
+
+@font-face {
+font-family: Code;
+src: url("font/CodeLight.otf") format("opentype");
+}
+
+@font-face {
+font-family: Code;
+font-weight:bold;
+src: url("font/CodeBold.otf") format("opentype");
+}
+
 /*Chart*/
 #chart {
 	width:96%;
@@ -25,32 +74,78 @@ table a:hover {
 	color: #bd5a35;
 	text-decoration:underline;
 }
-table {
-	font-family:Arial, Helvetica, sans-serif;
-	color:#666;
+table {        
+	
+	
+	/*
+	font-family:Code;
+	letter-spacing:1px;
 	font-size:12px;
-	text-shadow: 1px 1px 0px #fff;
+	*/
+	
+	/*
+	font-family:Nexa;
+	letter-spacing:1px;
+	font-size:12px;
+	*/
+	
+	/*
+	font-family:Dense;
+	letter-spacing:1px;
+	text-transform:uppercase;
+	font-size:18px;
+	*/
+	
+	
+	color:#666;
 	background:#eaebec;
 	margin:20px auto;
 	border:#ccc 1px solid;
 	width:96%;
-
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
 	border-radius:3px;
-
-	-moz-box-shadow: 0 1px 2px #d1d1d1;
-	-webkit-box-shadow: 0 1px 2px #d1d1d1;
-	box-shadow: 0 1px 2px #d1d1d1;
 }
+
+.code {
+	font-family:Code;
+	letter-spacing:1px;
+	text-transform:uppercase;
+	font-size:12px;
+}
+
+.nexa {
+	font-family:Nexa;
+	letter-spacing:1px;
+	text-transform:uppercase;
+	font-size:12px;
+}
+
+.dense {
+	font-family:Dense;
+	letter-spacing:1px;
+	text-transform:uppercase;
+	font-size:18px;
+}
+
+.fabrica {
+	font-family:Fabrica;
+	letter-spacing:0px;
+	text-transform:uppercase;
+	font-size:12px;
+}
+
+.klinic {
+	font-family:Klinic;
+	letter-spacing:1px;
+	text-transform:uppercase;
+	font-size:14px;
+}
+
 table th {
 	padding:21px 25px 22px 25px;
 	border-top:1px solid #fafafa;
 	border-bottom:1px solid #e0e0e0;
-
-	background: #ededed;
-	background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb));
-	background: -moz-linear-gradient(top,  #ededed,  #ebebeb);
 }
 table th:first-child {
 	text-align: left;

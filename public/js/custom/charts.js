@@ -139,7 +139,21 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 			.attr("y1", function(d, i) { return (i * barHeight)})
 			.attr("y2", function(d, i) { return (i * barHeight) + (barHeight - 1)})
 			.attr("stroke-width", 1)
-			.attr("stroke", "black");
+			.attr("stroke", function(d){
+				if(d.value < d.ave){
+					return "#666"
+				}else{
+					return "white"
+				}
+			});
+		
+		var text = svg.selectAll("text")
+			.data(data)
+			.enter().append("text")
+			.attr("x", width - 14)
+			.style('stroke','#ccc') 
+			.attr("y", function(d, i) { return ((i * barHeight) + 12)})
+			.text(function(d) { return (d.value * 100)})
 	}
 
 	return Chart;

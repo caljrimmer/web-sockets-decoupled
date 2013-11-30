@@ -72,6 +72,9 @@ src: url("font/CodeBold.otf") format("opentype");
 #quartile {
 	margin:20px;
 	float:right;
+	font-family:arial;
+	font-size:10px; 
+	line-height:15px;
 }
 
 #quartile rect {

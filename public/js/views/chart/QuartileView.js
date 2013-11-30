@@ -19,13 +19,13 @@ define([
 			this.chart.quartile(
 				[
 					{ value : 0.79, ave : 0.7 , type : 'over'},
-					{ value : 0.8, ave : 0.68 , type : 'over'},
-					{ value : 0.6, ave : 0.64 , type : 'under'},
-					{ value : 0.5, ave : 0.43 , type : 'over'} 
+					{ value : 0.8 , ave : 0.68 , type : 'over'},
+					{ value : 0.6 , ave : 0.64 , type : 'under'},
+					{ value : 0.5 , ave : 0.43 , type : 'over'} 
 				]
 			,'#quartile',{
 				width : 120,
-				height: 70
+				height: 60
 			});
 		},
 		  

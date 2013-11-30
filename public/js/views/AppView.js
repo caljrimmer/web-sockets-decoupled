@@ -5,8 +5,10 @@ define([
   'registry',
   'collections/Tweets',
   'views/Table/TableView',
-  'views/Chart/ChartView'
-], function($, _, Backbone, registry, Tweets, TableView, ChartView){
+  'views/Chart/ChartView',
+  'views/Chart/RadialView',
+  'views/Chart/QuartileView'
+], function($, _, Backbone, registry, Tweets, TableView, ChartView, RadialView, QuartileView){
 	
     var AppView = Backbone.View.extend({
 	
@@ -22,6 +24,16 @@ define([
 		},
 		
 		render : function(types){
+			
+			registry.views.radialView = new RadialView({
+				el : $('#radial')
+			});
+			registry.views.radialView.render();
+			
+			registry.views.quartileView = new QuartileView({
+				el : $('#quartile')
+			});
+			registry.views.quartileView.render();
 			
 			registry.views.chartView = new ChartView({
 				el : $('#chart')

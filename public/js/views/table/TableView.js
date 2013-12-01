@@ -16,9 +16,14 @@ define([
 		
 		initialize : function(){
 			this.pivots = new Pivot();
+			this.sort = {};
 			this.collection = registry.collections.tweets;
 			this.collection.bind("add", this.renderRows, this);
 			this.pivots.bind("change", this.renderRows, this);
+		},
+		
+		events : {
+			'click th[data-sort]' : 'eventSort'
 		},
 		
 		render : function(){
@@ -35,8 +40,8 @@ define([
 				that = this,
 				collection = this.collection.toJSON();
 			container.empty();
-			collection = this.controllerApplyPivot(collection);                
-			collection = this.controllerTrimCollection(collection);
+			collection = this.controllerApplyPivot(collection);
+			collection = this.controllerApplySort(collection);                 
 			$.each(collection,function(k,v){
 				var view = new TableRowView({
 					model: new Tweet(v),
@@ -44,14 +49,6 @@ define([
 				}); 
 				container.prepend(view.render().el);
 			});
-		},
-		
-		controllerTrimCollection : function(collection){
-			if(collection.length >= 5){
-				return collection.splice((collection.length - 5), 5)
-			}else{
-				return collection;
-			}
 		},
 		
 		controllerApplyPivot : function(collection){
@@ -63,6 +60,41 @@ define([
 				filteredCollection =  collection
 			}                      
 			return filteredCollection;
+		},
+		
+		controllerApplySort : function(collection){
+			var that = this,
+				sorted = collection;
+			if(_.has(this.sort,'name')){
+				sorted = _.sortBy(collection, that.sort.name);
+				if(this.sort.asc){
+					sorted.reverse();
+				}
+			}
+			return sorted; 
+		},
+		
+		eventSort : function(e){
+			if(!_.has(this.sort,'name')){
+				this.sort = {
+					name : $(e.target).attr('data-sort'),
+					asc : true 
+				}
+			}else{
+				if(this.sort.name === $(e.target).attr('data-sort')){
+					if(this.sort.asc){
+						this.sort.asc = false;
+					}else{
+						this.sort = {};
+					}
+				}else{
+					this.sort = {
+						name : $(e.target).attr('data-sort'),
+						asc : true 
+					}
+				}
+			}
+			this.renderRows();
 		}
 		  
 	});

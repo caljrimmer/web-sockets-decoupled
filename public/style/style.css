@@ -233,9 +233,8 @@ table tr:hover td {
 /*Pivot*/
 
 #pivot {
-	margin:20px;
+	margin:10px 20px 10px 20px;
 	font: normal 12px arial; 
-	background:#eaeaea;
 	padding:5px;
 }
 
@@ -269,6 +268,7 @@ table tr:hover td {
 	float:right;
 	background:#666;
 	color:#eaeaea;
+	margin-right:0;
 }
 
 .clearall:hover {

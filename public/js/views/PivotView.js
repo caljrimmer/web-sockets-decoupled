@@ -20,7 +20,10 @@ define([
 		},
 		
 		render : function(){
-			$(this.el).html(this.template({pivots:this.model.toJSON()}));
+			$(this.el).empty();
+			if(Object.keys(this.model.toJSON()).length){
+				$(this.el).html(this.template({pivots:this.model.toJSON()}));
+			}
 		},
 		
 		eventDelete : function(e){                                                        

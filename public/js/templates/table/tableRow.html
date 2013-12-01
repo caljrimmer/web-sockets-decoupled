@@ -1,7 +1,4 @@
 <td><%= id %></td>
 <td><%= text %></td>
-<td><%= type %></td>
-<td>
-	<% if(buy && !sell) {%> Buy <%}%>
-	<% if(sell && !buy) {%> Sell <%}%>
-</td>
+<td data-pivot="type"><%= type %></td>
+<td data-pivot="direction"><%= direction%></td>

@@ -12,8 +12,13 @@ define([
 		
 		template : _.template(TableRowTemplate),
 		
-		initialize : function(){
+		events : {
+			'click [data-pivot]' : 'eventPivot'
+		},
+		
+		initialize : function(options){
 			this.model.bind("remove", this.removeRow, this);
+			this.pivots = options.pivots;
 		},
 		
 		render : function(){
@@ -23,6 +28,14 @@ define([
 		
 		removeRow : function(){
 			this.remove();
+		},
+		
+		eventPivot : function(e){
+			var keyValue = $(e.target).attr('data-pivot'),
+				value = $(e.target).text(),
+				obj = {};
+			obj[keyValue] = value;
+			this.pivots.set(obj);
 		}
 		  
 	});

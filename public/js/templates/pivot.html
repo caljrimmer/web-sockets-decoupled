@@ -1,0 +1,10 @@
+<p>Pivots : </p>
+<% _.each(pivots, function(k,v) { %>
+	<div data-pivot="<%= v %>" class="pivot">
+	    <%= k%> &#10006;
+	</div> 
+<% }); %>
+<div data-pivot="clear" class="pivot clearall">
+    clear all
+	<span>&#10006;</span>
+</div>

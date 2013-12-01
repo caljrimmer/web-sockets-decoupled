@@ -19,8 +19,7 @@ exports.stream = function() {
 			var norm = {                        
 				id : tweet.id,
 				text : tweet.text.toLowerCase(),
-				sell : false,
-				buy : false,
+				direction : "",
 				type : ""
 			}
 			
@@ -35,11 +34,11 @@ exports.stream = function() {
 			}
 			
 			if(norm.text.indexOf('buy') !== -1){
-				norm.buy = true;
+				norm.direction = "buy";
 			}
 			
 			if(norm.text.indexOf('sell') !== -1){
-				norm.sell = true;
+				norm.direction = "sell";
 			}
 			
 			typeCheck();

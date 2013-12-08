@@ -237,9 +237,8 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 					.style("opacity", 1e-6);    
 							
 			})
-			.on("click", function(d,i) {
-				console.log(d) 
-				 console.log(dataXMapper(d,d3.event.layerX))
+			.on("click", function() {
+				console.log(dataXMapper(d3.event.layerX))
 			})
 			
 		var getIndex = function(data,xPos){
@@ -247,8 +246,8 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 			return Math.round((new Date(x.invert(xPos)) - new Date(data.values[0].date)) / step);
 		}
 		
-		var dataXMapper = function(data,xPos){
-			return data.values[getIndex(data,xPos)].date;
+		var dataXMapper = function(xPos){
+			return x.invert(xPos);
 		} 
 
 		var dataYMapper = function(data,xPos){

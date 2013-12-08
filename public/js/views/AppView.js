@@ -35,6 +35,11 @@ define([
 			});
 			registry.views.quartileView.render();
 			
+			registry.views.performanceView = new ChartView({
+				el : $('#chart')
+			});
+			registry.views.performanceView.render();
+			
 			registry.views.tableView = new TableView({
 				el : $('#table')
 			});

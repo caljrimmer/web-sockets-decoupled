@@ -11,11 +11,16 @@ define([
 		initialize : function(){
 			this.collection = registry.collections.tweets;
 			this.chart = new Charts();
-			this.collection.bind("add", this.render, this);
+			//this.collection.bind("add", this.render, this);
+			this.render();
 		},
 		
 		render : function(){
-			this.chart.block(this.collection.toJSON(),'#chart');
+			$(this.el).empty();
+			this.chart.performance('#chart',{
+				width : 700,
+				height : 300
+			});
 		},
 		  
 	});

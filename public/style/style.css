@@ -264,6 +264,45 @@ table tr:hover td {
 	cursor:pointer;
 }
 
+#chart {
+	font:normal 10px arial;
+	height:300px;    
+	width:700px;
+	position:relative;
+}
+
+#chart .label {
+	width:80px;
+	height:15px;
+	background: rgba(0,0,0,0.6);
+	color:#fff;
+	position:absolute;
+	line-height:15px;
+	border-radius:3px;
+	padding:3px;
+	overflow:hidden;
+}
+ 
+#chart .axis path,
+#chart .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+#chart .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+#chart .tooltip {
+  position: absolute;
+  width: 1px;
+  border-left: 1px dotted #666;
+  pointer-events: none; 
+}
+
 .clearall {
 	float:right;
 	background:#666;

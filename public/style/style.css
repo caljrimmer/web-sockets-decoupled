@@ -313,3 +313,29 @@ table tr:hover td {
 .clearall:hover {
 	color:#fff;
 }
+
+svg {
+  font: 10px sans-serif;
+}
+
+path {
+  	fill: none;
+	stroke:#666;
+}
+
+.volume {
+  	fill: yellow;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}

@@ -17,7 +17,7 @@ define([
 		
 		render : function(){
 			$(this.el).empty();
-			this.chart.performance('#chart',{
+			this.chart.performance2('#chart',{
 				width : 700,
 				height : 300
 			});

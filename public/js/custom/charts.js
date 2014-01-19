@@ -331,15 +331,17 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		
 		$(target).empty();
 		
-		var margin = {top: 10, right: 10, bottom: 100, left: 40},
-		    margin2 = {top: 230, right: 10, bottom: 20, left: 40},
-		    width = 700 - margin.left - margin.right,
-		    height = 300 - margin.top - margin.bottom,
-		    height2 = 300 - margin2.top - margin2.bottom,
-		    heightTooltip = 300 - margin.top - margin2.bottom, 
+		var margin = {top: 10, right: 14, bottom: 50, left: 40},
+		    margin2 = {top: 260, right: 14, bottom: 20, left: 40},
+		    width = obj.width - margin.left - margin.right,
+		    height = obj.height - margin.top - margin.bottom,
+		    height2 = obj.height - margin2.top - margin2.bottom,
+		    heightTooltip = obj.height - margin.top - margin2.bottom, 
 		    benchLines;
 
-		var parseDate = d3.time.format("%Y%m%d").parse; 
+		var parseDate = d3.time.format("%Y%m%d").parse;
+		
+		var	endTime = parseDate('20121230'); 
 
 		var x = d3.time.scale().range([0, width]),
 		    x2 = d3.time.scale().range([0, width]),
@@ -351,10 +353,6 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
 		    yAxis = d3.svg.axis().scale(y).orient("left"),
 			yAxis2 = d3.svg.axis().scale(y2).orient("left");
-
-		var brush = d3.svg.brush()
-		    .x(x2)
-		    .on("brush", brushed);
 
 		var line = d3.svg.line()
 		    .interpolate("basis")
@@ -375,8 +373,13 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 
 		var svg = d3.select(target).append("svg")
 		    .attr("width", width + margin.left + margin.right)
-		    .attr("height", height + margin.top + margin.bottom)
-			.on("mouseover", function(){
+		    .attr("height", height + margin.top + margin.bottom);
+		
+		var rect = svg.append("rect")
+			.attr("width", width)
+		    .attr("height", height)
+			.attr("transform","translate("+margin.left+","+margin.top+")")
+		    .on("mouseover", function(){
 				tooltips.transition()
 			      .duration(100)
 			      .style("opacity", 1);   
@@ -387,24 +390,27 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 				d3.selectAll("circle")
 					.style("opacity", 1);     
 				
-			})
-			.on("mousemove", function(){ 
+			});
+			/*
+			.on("mousemove", function(){
+				var x = d3.mouse(this)[0],
+				 	y = d3.mouse(this)[1]
 				tooltips
-					.style("left", (d3.event.layerX) + "px")
+					.style("left", x+margin.left + "px")
 					.style("top", "0px");   
 				
 				d3.selectAll('.label')
 					.style("left", function(){
-						if(width - d3.event.layerX > 85){
-							return d3.event.layerX + 4 + 'px';
+						if(width - x > 85){
+							return x + margin.left + 4 + 'px';
 						}else{
-							return d3.event.layerX - 90 + 'px'; 
+							return x + margin.left - 90 + 'px'; 
 						}
 					})
-					.style("top", function(d,index){ return (dataYMapper(d,d3.event.layerX) - 13) + 'px'})
-					.text(function(d) { return dataLabelMapper(d,d3.event.layerX) + ' ' + d.name ; })
+					.style("top", function(d,index){ return (dataYMapper(d,x) - 13) + 'px'})
+					.text(function(d) { return dataLabelMapper(d,x) + ' ' + d.name ; })
 					
-			   d3.selectAll("circle").attr("transform", function(d,index){  return "translate(" + d3.event.layerX + "," + dataYMapper(d,d3.event.layerX) + ")"});  
+			   d3.selectAll("circle").attr("transform", function(d,index){  return "translate(" + x + "," + dataYMapper(d,x) + ")"});  
 				     
 			})
 			.on("mouseout", function(){
@@ -421,7 +427,8 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 			})
 			.on("click", function() {
 				console.log(dataXMapper(d3.event.layerX))
-			})
+			});
+			*/
 			
 			
 			var getIndex = function(data,xPos){
@@ -471,7 +478,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		    };
 		  });
 
-		  x.domain(d3.extent(benchData[3].values.map(function(d) { return d.date; })));
+		  x.domain(d3.extent([benchData[3].values[0].date,endTime]));
 		  y.domain([
 		    d3.min(benchData, function(c) { return d3.min(c.values, function(d) { return parseInt(d.price,10) - (parseInt(d.price,10)/10); }); }),
 		    d3.max(benchData, function(c) { return d3.max(c.values, function(d) { return parseInt(d.price,10) + (parseInt(d.price,10)/10); }); })
@@ -503,6 +510,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		  benchLines.append("path")
 		      .attr("class", "line")
 		      .attr("d", function(d) { return line(d.values); })
+			  .attr("id", function(d) { return d.name; }) 
 		
 			benchLines.append("circle")
 			      .attr("r", 2);
@@ -510,7 +518,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		  //Axis
 
 		  axiss.append("g")
-		      .attr("class", "x axis")
+		      .attr("class", "x axis hide")
 		      .attr("transform", "translate(0," + height + ")")
 		      .call(xAxis);
 
@@ -518,7 +526,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		      .attr("class", "y axis")
 		      .call(yAxis);
 		
-		  //Brush
+		  //Volume
 
 		  context.append("path")
 		      .datum(data)
@@ -534,33 +542,72 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		      .attr("class", "y axis")
 		      .call(yAxis2);  
 
-		  context.append("g")
-		      .attr("class", "x brush")
-		      .call(brush)
-		      .selectAll("rect")
-		      .attr("y", -6)
-		      .attr("height", height2 + 7);
-		
 			//Tooltips
 			
 			var label = d3.select(target).selectAll(".label")
 			    .data(benchData)
 			    .enter().append("div")
 			    .attr("class", "label")
-			    .attr("id", function(d) { return d.name ; })
 				.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })  
 				.style("left", function(d) { return (x(d.value.price) - 90) + "px"}) 
-				.style("top", function(d) { return (y(d.value.price) - 9 ) + "px"})
-				.text(function(d) { return d.value.price + ' ' + d.name ; });  
-		
-		
-		});
+				.style("top", function(d) { return (y(d.value.price) - 4 ) + "px"})
+				.text(function(d) { return d.value.price + ' ' + d.name ; })
+				.on("mouseover", function(d,i){
+					d3.select(target).selectAll(".label").style('opacity',0.2);
+					$(this).css({
+						'z-index' : 100,
+						'opacity' : 1
+					});
+					d3.select(target).selectAll("path").style('opacity',0.2);
+					d3.select('#'+d.name).style('opacity',1); 
+				})
+				.on("mouseout", function(d,i){
+					d3.select(target).selectAll("path").style('opacity',1);
+					d3.select(target).selectAll(".label").style('opacity',1);
+				}); 
+			
+			var endTimePos =  x(endTime);
+			var endLine = svg.append("line")
+				.attr("x1", endTimePos + margin.left)
+				.attr("x2", endTimePos + margin.left)
+				.attr("y1", 0 + margin.top)
+				.attr("y2", height + height2 + margin.bottom)
+				.attr("stroke-dasharray", [9, 5])
+				.attr("stroke","#ccc") 
+				.attr("stroke-width", 1);
+			
+			var endTimeText = svg.append("text")
+				.attr("transform","translate("+(endTimePos+30)+","+(height-8)+") rotate(-90)")
+				.attr("class","endTime")
+				.text(new Date (endTime).getHours() + ':' +new Date (endTime).getMinutes() + ' - Estimated') 
+			
+			var currentTimePos =  x(benchData[3].values[benchData[3].values.length - 1].date);
+			var currentLine = svg.append("line")
+				.attr("x1", currentTimePos + margin.left)
+				.attr("x2", currentTimePos + margin.left)
+				.attr("y1", 0 + margin.top)
+				.attr("y2", height + height2 + margin.bottom)
+				.attr("stroke-dasharray", [9, 5]) 
+				.attr("stroke","#666")
+				.attr("stroke-width", 1);
+			
+			var currentTimeText = svg.append("text")
+				.attr("transform","translate("+(currentTimePos+56)+","+(height-4)+") rotate(-90)")
+				.attr("class","endTime")
+				.text(new Date (currentTimePos).getHours() + ':' +new Date (currentTimePos).getMinutes() + ' - Current') 
 
-		function brushed(d) {
-		  x.domain(brush.empty() ? x2.domain() : brush.extent());
-		  benchLines.select('path').attr("d", function(d) { return line(d.values) });
-		  axiss.select(".x.axis").call(xAxis);
-		}
+			_.each(benchData,function(d){
+				if(d.name === "volume"){
+					
+				}else{
+					d3.selectAll('.label')
+						.style("left", currentTimePos + margin.left + 4 + 'px');
+					d3.selectAll("circle")
+						.style("left", currentTimePos + margin.left + 4 + 'px');  
+					
+				}
+			});
+		});
 		
 	} 
 

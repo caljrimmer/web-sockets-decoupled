@@ -272,15 +272,26 @@ table tr:hover td {
 }
 
 #chart .label {
-	width:80px;
 	height:15px;
 	background: rgba(0,0,0,0.6);
 	color:#fff;
 	position:absolute;
 	line-height:15px;
 	border-radius:3px;
-	padding:3px;
+	padding:3px 6px 3px 6px;
 	overflow:hidden;
+}
+
+.endTime {
+	fill:#ccc;
+	stroke-width:1;
+	stroke:none;
+	text-transform:uppercase;
+	text-anchor:middle;
+}
+
+#chart .label:hover {
+	cursor:pointer;
 }
  
 #chart .axis path,
@@ -293,7 +304,7 @@ table tr:hover td {
 #chart .line {
   fill: none;
   stroke: steelblue;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
 }
 
 #chart .tooltip {
@@ -321,6 +332,14 @@ svg {
 path {
   	fill: none;
 	stroke:#666;
+}
+
+rect {
+	fill : #fff;
+}
+
+.hide {
+	display:none;
 }
 
 .volume {

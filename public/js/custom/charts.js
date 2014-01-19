@@ -346,8 +346,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		var x = d3.time.scale().range([0, width]),
 		    x2 = d3.time.scale().range([0, width]),
 		    y = d3.scale.linear().range([height, 0]),
-		    y2 = d3.scale.linear().range([height2, 0]),
-			city;
+		    y2 = d3.scale.linear().range([height2, 0]);
 
 		var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 		    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
@@ -363,96 +362,29 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		    .interpolate("monotone")
 		    .x(function(d) { return x2(d.date); })
 		    .y0(height2)
-		    .y1(function(d) { return y2(d.volume); });
-		
-		var tooltips = d3.select(target).append("div")
-		    .attr("class", "tooltip")
-		    .style("opacity", 1e-6)
-		    .style("margin-top",margin.top + "px")
-			.style("height", heightTooltip + 'px');    
+		    .y1(function(d) { return y2(d.volume); });  
 
 		var svg = d3.select(target).append("svg")
 		    .attr("width", width + margin.left + margin.right)
 		    .attr("height", height + margin.top + margin.bottom);
-		
-		var rect = svg.append("rect")
-			.attr("width", width)
-		    .attr("height", height)
-			.attr("transform","translate("+margin.left+","+margin.top+")")
-		    .on("mouseover", function(){
-				tooltips.transition()
-			      .duration(100)
-			      .style("opacity", 1);   
-				
-				d3.selectAll('.label')
-					.style("opacity", 1);   
 
-				d3.selectAll("circle")
-					.style("opacity", 1);     
-				
-			});
-			/*
-			.on("mousemove", function(){
-				var x = d3.mouse(this)[0],
-				 	y = d3.mouse(this)[1]
-				tooltips
-					.style("left", x+margin.left + "px")
-					.style("top", "0px");   
-				
-				d3.selectAll('.label')
-					.style("left", function(){
-						if(width - x > 85){
-							return x + margin.left + 4 + 'px';
-						}else{
-							return x + margin.left - 90 + 'px'; 
-						}
-					})
-					.style("top", function(d,index){ return (dataYMapper(d,x) - 13) + 'px'})
-					.text(function(d) { return dataLabelMapper(d,x) + ' ' + d.name ; })
-					
-			   d3.selectAll("circle").attr("transform", function(d,index){  return "translate(" + x + "," + dataYMapper(d,x) + ")"});  
-				     
-			})
-			.on("mouseout", function(){
-				tooltips.transition()
-				      .duration(100)
-				      .style("opacity", 1e-6);
-				
-				d3.selectAll('.label')
-					.style("opacity", 1e-6);   
-					
-				d3.selectAll("circle")
-					.style("opacity", 1e-6);    
-							
-			})
-			.on("click", function() {
-				console.log(dataXMapper(d3.event.layerX))
-			});
-			*/
 			
-			
-			var getIndex = function(data,xPos){
-				var step = (new Date(data.values[data.values.length - 1].date) - new Date (data.values[0].date)) / data.values.length;  
-				return Math.round((new Date(x.invert(xPos)) - new Date(data.values[0].date)) / step);
-			}
+		var getIndex = function(data,xPos){
+			var step = (new Date(data.values[data.values.length - 1].date) - new Date (data.values[0].date)) / data.values.length;  
+			return Math.round((new Date(x.invert(xPos)) - new Date(data.values[0].date)) / step);
+		}
 
-			var dataXMapper = function(xPos){
-				return x.invert(xPos);
-			} 
+		var dataXMapper = function(xPos){
+			return x.invert(xPos);
+		} 
 
-			var dataYMapper = function(data,xPos){
-				return y(data.values[getIndex(data,xPos)].price);
-			}
+		var dataYMapper = function(data,xPos){
+			return y(data.values[getIndex(data,xPos)].price);
+		}
 
-			var dataLabelMapper = function(data,xPos){
-				return data.values[getIndex(data,xPos)].price;
-			}
-
-		svg.append("defs").append("clipPath")
-		    .attr("id", "clip")
-		    .append("rect")
-		    .attr("width", width)
-		    .attr("height", height);
+		var dataLabelMapper = function(data,xPos){
+			return data.values[getIndex(data,xPos)].price;
+		}   
 
 		var context = svg.append("g")
 		    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
@@ -511,9 +443,6 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		      .attr("class", "line")
 		      .attr("d", function(d) { return line(d.values); })
 			  .attr("id", function(d) { return d.name; }) 
-		
-			benchLines.append("circle")
-			      .attr("r", 2);
           
 		  //Axis
 
@@ -542,14 +471,14 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		      .attr("class", "y axis")
 		      .call(yAxis2);  
 
-			//Tooltips
-			
+	  	  //Tooltips
+		
 			var label = d3.select(target).selectAll(".label")
 			    .data(benchData)
 			    .enter().append("div")
 			    .attr("class", "label")
 				.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })  
-				.style("left", function(d) { return (x(d.value.price) - 90) + "px"}) 
+				.style("left", function(d) { return (x(d.value.date) + 46) + "px"}) 
 				.style("top", function(d) { return (y(d.value.price) - 4 ) + "px"})
 				.text(function(d) { return d.value.price + ' ' + d.name ; })
 				.on("mouseover", function(d,i){
@@ -565,7 +494,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 					d3.select(target).selectAll("path").style('opacity',1);
 					d3.select(target).selectAll(".label").style('opacity',1);
 				}); 
-			
+		
 			var endTimePos =  x(endTime);
 			var endLine = svg.append("line")
 				.attr("x1", endTimePos + margin.left)
@@ -575,12 +504,12 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 				.attr("stroke-dasharray", [9, 5])
 				.attr("stroke","#ccc") 
 				.attr("stroke-width", 1);
-			
+		
 			var endTimeText = svg.append("text")
 				.attr("transform","translate("+(endTimePos+30)+","+(height-8)+") rotate(-90)")
 				.attr("class","endTime")
 				.text(new Date (endTime).getHours() + ':' +new Date (endTime).getMinutes() + ' - Estimated') 
-			
+		
 			var currentTimePos =  x(benchData[3].values[benchData[3].values.length - 1].date);
 			var currentLine = svg.append("line")
 				.attr("x1", currentTimePos + margin.left)
@@ -590,23 +519,12 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 				.attr("stroke-dasharray", [9, 5]) 
 				.attr("stroke","#666")
 				.attr("stroke-width", 1);
-			
+		
 			var currentTimeText = svg.append("text")
 				.attr("transform","translate("+(currentTimePos+56)+","+(height-4)+") rotate(-90)")
 				.attr("class","endTime")
 				.text(new Date (currentTimePos).getHours() + ':' +new Date (currentTimePos).getMinutes() + ' - Current') 
 
-			_.each(benchData,function(d){
-				if(d.name === "volume"){
-					
-				}else{
-					d3.selectAll('.label')
-						.style("left", currentTimePos + margin.left + 4 + 'px');
-					d3.selectAll("circle")
-						.style("left", currentTimePos + margin.left + 4 + 'px');  
-					
-				}
-			});
 		});
 		
 	} 

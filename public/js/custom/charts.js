@@ -3,6 +3,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 	function Chart() {
 		this.padding = 2;
 		this.radialObj = {};
+		this.quartileObj = {};
 	}
 
 
@@ -53,6 +54,8 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 			width = obj.width,
 			height = obj.height,
 			fontSize = obj.fontSize,
+			that = this, 
+			index,
 			color;
 			
 		if(obj.type === "buy"){
@@ -73,11 +76,27 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		    .attr("height", height)
 		  	.append("g")
 		    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+        
+			var circleRotate = function(d, i) {
+				var angle = 360;
+				console.log(angle)
+				var i = d3.interpolate(0, angle);
+				return function(t) {
+					return "rotate(" + i(t) + ")";
+				};   
+			}
 
-		this.radialObj.background = svg.append("path")
-		    .datum({endAngle: this.radialObj.angle})
-		    .style("fill", "#ddd")
-		    .attr("d", arc);
+		this.radialObj.background = svg.append('circle')
+			    .attr('class', 'planet')
+			    .attr('cx', 0)
+			    .attr('cy', 0)
+			    .attr('r', width/2)
+			    .attr('fill', 'none')
+			    .style({
+			    'stroke': 'black',
+			    'stroke-width': 1,
+				'stroke-dasharray' : [5,5]
+			}).transition().duration(5000).attrTween("transform", circleRotate);
 
 		this.radialObj.foreground = svg.append("path")
 		    .datum({endAngle: .0 * this.radialObj.angle})
@@ -99,7 +118,10 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 					return arc(d);   
 				};  
 			});          
-		}  
+		}
+		
+   
+		
 
 	}
 	
@@ -121,17 +143,28 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 			height = obj.height,
 		    barHeight = ((height/4) - 1);
 		
+		this.quartileObj.obj = obj;
+		this.quartileObj.barHeight = barHeight;
+		
 		var svg = d3.select(target).append("svg").attr("width", width).attr("height", height);
+		
+		var barGrow = function(d, i) {
+			var newWidth = d.value * width;
+			return function(t) {
+				return newWidth*t;
+			};   
+		}
 
-		var bar = svg.selectAll("rect")
+		this.quartileObj.bar = svg.selectAll("rect")
 		    .data(data)
 		  	.enter().append("rect")
 		    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; })
-		    .attr("width", function(d){ return (d.value * width) })
 			.attr("class", function(d){ return d.type; })
-		    .attr("height", barHeight - 1);
+		    .attr("height", barHeight - 1)
+				.transition().duration(1000)
+				.attrTween("width", barGrow)   
 		
-		var line = svg.selectAll("line")
+		this.quartileObj.line = svg.selectAll("line")
 			.data(data)
 			.enter().append("line")
 			.attr("x1", function(d){ return (d.ave * width) })
@@ -147,13 +180,38 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 				}
 			});
 		
-		var text = svg.selectAll("text")
+		this.quartileObj.text = svg.selectAll("text")
 			.data(data)
 			.enter().append("text")
 			.attr("x", width - 14)
 			.style('stroke','#ccc') 
 			.attr("y", function(d, i) { return ((i * barHeight) + 12)})
 			.text(function(d) { return (d.value * 100)})
+		 
+	}
+	
+	Chart.prototype.quartileIncrement = function(data){
+		
+		var that = this;
+		
+		this.quartileObj.bar.transition()
+			.delay(function(d, i) { return i * 300 })
+			.duration(300)    
+			.attr("width", function(d){ return (d.value * that.quartileObj.obj.width) });
+		
+		this.quartileObj.bar.transition()
+			.delay(function(d, i) { return i * 300 })
+			.duration(300)    
+			.attr("x1", function(d){ return (d.ave * width) })
+			.attr("x2", function(d){ return (d.ave * width) })
+			.attr("y1", function(d, i) { return (i * barHeight)})
+			.attr("y2", function(d, i) { return (i * barHeight) + (barHeight - 1)})   
+			
+		this.quartileObj.bar.transition()
+			.delay(function(d, i) { return i * 300 })
+			.duration(300)    
+			.attr("width", function(d){ return (d.value * that.quartileObj.obj.width) });    
+		
 	}
 	
 	Chart.prototype.performance = function(target,obj){
@@ -478,7 +536,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 			    .enter().append("div")
 			    .attr("class", "label")
 				.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })  
-				.style("left", function(d) { return (x(d.value.date) + 46) + "px"}) 
+				.style("left", function(d) { return (x(d.value.date) + 60) + "px"}) 
 				.style("top", function(d) { return (y(d.value.price) - 4 ) + "px"})
 				.text(function(d) { return d.value.price + ' ' + d.name ; })
 				.on("mouseover", function(d,i){
@@ -493,7 +551,53 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 				.on("mouseout", function(d,i){
 					d3.select(target).selectAll("path").style('opacity',1);
 					d3.select(target).selectAll(".label").style('opacity',1);
-				}); 
+				});
+				
+			var drawPolyR = 	[
+				{"x":0, "y":10},
+				{"x":20,"y":10},
+		        {"x":20,"y":20},
+		        {"x":100,"y":20},
+				{"x":100,"y":0},
+				{"x":20,"y":0},
+				{"x":20,"y":10}
+			];
+			
+			var drawPolyL = [
+				{"x":0, "y":10},
+				{"x":-20,"y":10},
+		        {"x":-20,"y":20},
+		        {"x":-100,"y":20},
+				{"x":-100,"y":0},
+				{"x":-20,"y":0},
+				{"x":-20,"y":10}
+			];    
+				
+			var poly = svg.selectAll("polygon")
+				.data(benchData)
+				.enter().append("polygon")
+				.attr("class", "label") 
+				.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+				.attr("points",function(d,i) {
+					var str = '',
+						xPos = x(d.value.date),
+						yPos = y(d.value.price);
+
+						_.each(drawPolyR,function(v,k){
+							if(k === 0){
+								str += (v.x + xPos + margin.left).toFixed(0)+','+(v.y + yPos).toFixed(0);
+							}else{
+								str +=' '+(v.x + xPos + margin.left).toFixed(0)+','+(v.y + (i*25)).toFixed(0);
+							} 
+						 		
+						})
+
+					
+					console.log(str)
+					return str;  
+				})
+				.attr("stroke","black")
+				.attr("stroke-width",1)   											
 		
 			var endTimePos =  x(endTime);
 			var endLine = svg.append("line")

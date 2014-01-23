@@ -24,9 +24,7 @@ define([
 		},
 		
 		render : function(types){
-			
-			/*
-			
+
 			registry.views.radialView = new RadialView({
 				el : $('#radial')
 			});
@@ -36,18 +34,6 @@ define([
 				el : $('#quartile')
 			});
 			registry.views.quartileView.render();
-			
-			registry.views.tableView = new TableView({
-				el : $('#table')
-			});
-			registry.views.tableView.render();
-			
-			*/
-			
-			registry.views.performanceView = new ChartView({
-				el : $('#chart')
-			});
-			registry.views.performanceView.render();
 			
 		},
 		

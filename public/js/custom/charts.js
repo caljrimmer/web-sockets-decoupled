@@ -3,6 +3,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 	function Chart() {
 		this.padding = 2;
 		this.radialObj = {};
+		this.quartileObj = {};
 	}
 
 
@@ -53,6 +54,8 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 			width = obj.width,
 			height = obj.height,
 			fontSize = obj.fontSize,
+			that = this, 
+			index,
 			color;
 			
 		if(obj.type === "buy"){
@@ -73,11 +76,27 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		    .attr("height", height)
 		  	.append("g")
 		    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+        
+			var circleRotate = function(d, i) {
+				var angle = 360;
+				console.log(angle)
+				var i = d3.interpolate(0, angle);
+				return function(t) {
+					return "rotate(" + i(t) + ")";
+				};   
+			}
 
-		this.radialObj.background = svg.append("path")
-		    .datum({endAngle: this.radialObj.angle})
-		    .style("fill", "#ddd")
-		    .attr("d", arc);
+		this.radialObj.background = svg.append('circle')
+			    .attr('class', 'planet')
+			    .attr('cx', 0)
+			    .attr('cy', 0)
+			    .attr('r', width/2)
+			    .attr('fill', 'none')
+			    .style({
+			    'stroke': 'black',
+			    'stroke-width': 1,
+				'stroke-dasharray' : [5,5]
+			}).transition().duration(5000).attrTween("transform", circleRotate);
 
 		this.radialObj.foreground = svg.append("path")
 		    .datum({endAngle: .0 * this.radialObj.angle})
@@ -99,7 +118,10 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 					return arc(d);   
 				};  
 			});          
-		}  
+		}
+		
+   
+		
 
 	}
 	
@@ -121,17 +143,28 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 			height = obj.height,
 		    barHeight = ((height/4) - 1);
 		
+		this.quartileObj.obj = obj;
+		this.quartileObj.barHeight = barHeight;
+		
 		var svg = d3.select(target).append("svg").attr("width", width).attr("height", height);
+		
+		var barGrow = function(d, i) {
+			var newWidth = d.value * width;
+			return function(t) {
+				return newWidth*t;
+			};   
+		}
 
-		var bar = svg.selectAll("rect")
+		this.quartileObj.bar = svg.selectAll("rect")
 		    .data(data)
 		  	.enter().append("rect")
 		    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; })
-		    .attr("width", function(d){ return (d.value * width) })
 			.attr("class", function(d){ return d.type; })
-		    .attr("height", barHeight - 1);
+		    .attr("height", barHeight - 1)
+				.transition().duration(1000)
+				.attrTween("width", barGrow)   
 		
-		var line = svg.selectAll("line")
+		this.quartileObj.line = svg.selectAll("line")
 			.data(data)
 			.enter().append("line")
 			.attr("x1", function(d){ return (d.ave * width) })
@@ -147,13 +180,38 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 				}
 			});
 		
-		var text = svg.selectAll("text")
+		this.quartileObj.text = svg.selectAll("text")
 			.data(data)
 			.enter().append("text")
 			.attr("x", width - 14)
 			.style('stroke','#ccc') 
 			.attr("y", function(d, i) { return ((i * barHeight) + 12)})
 			.text(function(d) { return (d.value * 100)})
+		 
+	}
+	
+	Chart.prototype.quartileIncrement = function(data){
+		
+		var that = this;
+		
+		this.quartileObj.bar.transition()
+			.delay(function(d, i) { return i * 300 })
+			.duration(300)    
+			.attr("width", function(d){ return (d.value * that.quartileObj.obj.width) });
+		
+		this.quartileObj.bar.transition()
+			.delay(function(d, i) { return i * 300 })
+			.duration(300)    
+			.attr("x1", function(d){ return (d.ave * width) })
+			.attr("x2", function(d){ return (d.ave * width) })
+			.attr("y1", function(d, i) { return (i * barHeight)})
+			.attr("y2", function(d, i) { return (i * barHeight) + (barHeight - 1)})   
+			
+		this.quartileObj.bar.transition()
+			.delay(function(d, i) { return i * 300 })
+			.duration(300)    
+			.attr("width", function(d){ return (d.value * that.quartileObj.obj.width) });    
+		
 	}
 	
 	Chart.prototype.performance = function(target,obj){
@@ -331,30 +389,27 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		
 		$(target).empty();
 		
-		var margin = {top: 10, right: 10, bottom: 100, left: 40},
-		    margin2 = {top: 230, right: 10, bottom: 20, left: 40},
-		    width = 700 - margin.left - margin.right,
-		    height = 300 - margin.top - margin.bottom,
-		    height2 = 300 - margin2.top - margin2.bottom,
-		    heightTooltip = 300 - margin.top - margin2.bottom, 
+		var margin = {top: 10, right: 14, bottom: 50, left: 40},
+		    margin2 = {top: 260, right: 14, bottom: 20, left: 40},
+		    width = obj.width - margin.left - margin.right,
+		    height = obj.height - margin.top - margin.bottom,
+		    height2 = obj.height - margin2.top - margin2.bottom,
+		    heightTooltip = obj.height - margin.top - margin2.bottom, 
 		    benchLines;
 
-		var parseDate = d3.time.format("%Y%m%d").parse; 
+		var parseDate = d3.time.format("%Y%m%d").parse;
+		
+		var	endTime = parseDate('20121230'); 
 
 		var x = d3.time.scale().range([0, width]),
 		    x2 = d3.time.scale().range([0, width]),
 		    y = d3.scale.linear().range([height, 0]),
-		    y2 = d3.scale.linear().range([height2, 0]),
-			city;
+		    y2 = d3.scale.linear().range([height2, 0]);
 
 		var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 		    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
 		    yAxis = d3.svg.axis().scale(y).orient("left"),
 			yAxis2 = d3.svg.axis().scale(y2).orient("left");
-
-		var brush = d3.svg.brush()
-		    .x(x2)
-		    .on("brush", brushed);
 
 		var line = d3.svg.line()
 		    .interpolate("basis")
@@ -365,87 +420,29 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		    .interpolate("monotone")
 		    .x(function(d) { return x2(d.date); })
 		    .y0(height2)
-		    .y1(function(d) { return y2(d.volume); });
-		
-		var tooltips = d3.select(target).append("div")
-		    .attr("class", "tooltip")
-		    .style("opacity", 1e-6)
-		    .style("margin-top",margin.top + "px")
-			.style("height", heightTooltip + 'px');    
+		    .y1(function(d) { return y2(d.volume); });  
 
 		var svg = d3.select(target).append("svg")
 		    .attr("width", width + margin.left + margin.right)
-		    .attr("height", height + margin.top + margin.bottom)
-			.on("mouseover", function(){
-				tooltips.transition()
-			      .duration(100)
-			      .style("opacity", 1);   
-				
-				d3.selectAll('.label')
-					.style("opacity", 1);   
+		    .attr("height", height + margin.top + margin.bottom);
 
-				d3.selectAll("circle")
-					.style("opacity", 1);     
-				
-			})
-			.on("mousemove", function(){ 
-				tooltips
-					.style("left", (d3.event.layerX) + "px")
-					.style("top", "0px");   
-				
-				d3.selectAll('.label')
-					.style("left", function(){
-						if(width - d3.event.layerX > 85){
-							return d3.event.layerX + 4 + 'px';
-						}else{
-							return d3.event.layerX - 90 + 'px'; 
-						}
-					})
-					.style("top", function(d,index){ return (dataYMapper(d,d3.event.layerX) - 13) + 'px'})
-					.text(function(d) { return dataLabelMapper(d,d3.event.layerX) + ' ' + d.name ; })
-					
-			   d3.selectAll("circle").attr("transform", function(d,index){  return "translate(" + d3.event.layerX + "," + dataYMapper(d,d3.event.layerX) + ")"});  
-				     
-			})
-			.on("mouseout", function(){
-				tooltips.transition()
-				      .duration(100)
-				      .style("opacity", 1e-6);
-				
-				d3.selectAll('.label')
-					.style("opacity", 1e-6);   
-					
-				d3.selectAll("circle")
-					.style("opacity", 1e-6);    
-							
-			})
-			.on("click", function() {
-				console.log(dataXMapper(d3.event.layerX))
-			})
 			
-			
-			var getIndex = function(data,xPos){
-				var step = (new Date(data.values[data.values.length - 1].date) - new Date (data.values[0].date)) / data.values.length;  
-				return Math.round((new Date(x.invert(xPos)) - new Date(data.values[0].date)) / step);
-			}
+		var getIndex = function(data,xPos){
+			var step = (new Date(data.values[data.values.length - 1].date) - new Date (data.values[0].date)) / data.values.length;  
+			return Math.round((new Date(x.invert(xPos)) - new Date(data.values[0].date)) / step);
+		}
 
-			var dataXMapper = function(xPos){
-				return x.invert(xPos);
-			} 
+		var dataXMapper = function(xPos){
+			return x.invert(xPos);
+		} 
 
-			var dataYMapper = function(data,xPos){
-				return y(data.values[getIndex(data,xPos)].price);
-			}
+		var dataYMapper = function(data,xPos){
+			return y(data.values[getIndex(data,xPos)].price);
+		}
 
-			var dataLabelMapper = function(data,xPos){
-				return data.values[getIndex(data,xPos)].price;
-			}
-
-		svg.append("defs").append("clipPath")
-		    .attr("id", "clip")
-		    .append("rect")
-		    .attr("width", width)
-		    .attr("height", height);
+		var dataLabelMapper = function(data,xPos){
+			return data.values[getIndex(data,xPos)].price;
+		}   
 
 		var context = svg.append("g")
 		    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
@@ -471,7 +468,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		    };
 		  });
 
-		  x.domain(d3.extent(benchData[3].values.map(function(d) { return d.date; })));
+		  x.domain(d3.extent([benchData[3].values[0].date,endTime]));
 		  y.domain([
 		    d3.min(benchData, function(c) { return d3.min(c.values, function(d) { return parseInt(d.price,10) - (parseInt(d.price,10)/10); }); }),
 		    d3.max(benchData, function(c) { return d3.max(c.values, function(d) { return parseInt(d.price,10) + (parseInt(d.price,10)/10); }); })
@@ -503,14 +500,12 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		  benchLines.append("path")
 		      .attr("class", "line")
 		      .attr("d", function(d) { return line(d.values); })
-		
-			benchLines.append("circle")
-			      .attr("r", 2);
+			  .attr("id", function(d) { return d.name; }) 
           
 		  //Axis
 
 		  axiss.append("g")
-		      .attr("class", "x axis")
+		      .attr("class", "x axis hide")
 		      .attr("transform", "translate(0," + height + ")")
 		      .call(xAxis);
 
@@ -518,7 +513,7 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		      .attr("class", "y axis")
 		      .call(yAxis);
 		
-		  //Brush
+		  //Volume
 
 		  context.append("path")
 		      .datum(data)
@@ -534,33 +529,107 @@ define(['jquery', 'underscore', 'backbone', 'registry', 'd3'], function($, _, Ba
 		      .attr("class", "y axis")
 		      .call(yAxis2);  
 
-		  context.append("g")
-		      .attr("class", "x brush")
-		      .call(brush)
-		      .selectAll("rect")
-		      .attr("y", -6)
-		      .attr("height", height2 + 7);
+	  	  //Tooltips
 		
-			//Tooltips
-			
 			var label = d3.select(target).selectAll(".label")
 			    .data(benchData)
 			    .enter().append("div")
 			    .attr("class", "label")
-			    .attr("id", function(d) { return d.name ; })
 				.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })  
-				.style("left", function(d) { return (x(d.value.price) - 90) + "px"}) 
-				.style("top", function(d) { return (y(d.value.price) - 9 ) + "px"})
-				.text(function(d) { return d.value.price + ' ' + d.name ; });  
-		
-		
-		});
+				.style("left", function(d) { return (x(d.value.date) + 60) + "px"}) 
+				.style("top", function(d) { return (y(d.value.price) - 4 ) + "px"})
+				.text(function(d) { return d.value.price + ' ' + d.name ; })
+				.on("mouseover", function(d,i){
+					d3.select(target).selectAll(".label").style('opacity',0.2);
+					$(this).css({
+						'z-index' : 100,
+						'opacity' : 1
+					});
+					d3.select(target).selectAll("path").style('opacity',0.2);
+					d3.select('#'+d.name).style('opacity',1); 
+				})
+				.on("mouseout", function(d,i){
+					d3.select(target).selectAll("path").style('opacity',1);
+					d3.select(target).selectAll(".label").style('opacity',1);
+				});
+				
+			var drawPolyR = 	[
+				{"x":0, "y":10},
+				{"x":20,"y":10},
+		        {"x":20,"y":20},
+		        {"x":100,"y":20},
+				{"x":100,"y":0},
+				{"x":20,"y":0},
+				{"x":20,"y":10}
+			];
+			
+			var drawPolyL = [
+				{"x":0, "y":10},
+				{"x":-20,"y":10},
+		        {"x":-20,"y":20},
+		        {"x":-100,"y":20},
+				{"x":-100,"y":0},
+				{"x":-20,"y":0},
+				{"x":-20,"y":10}
+			];    
+				
+			var poly = svg.selectAll("polygon")
+				.data(benchData)
+				.enter().append("polygon")
+				.attr("class", "label") 
+				.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+				.attr("points",function(d,i) {
+					var str = '',
+						xPos = x(d.value.date),
+						yPos = y(d.value.price);
 
-		function brushed(d) {
-		  x.domain(brush.empty() ? x2.domain() : brush.extent());
-		  benchLines.select('path').attr("d", function(d) { return line(d.values) });
-		  axiss.select(".x.axis").call(xAxis);
-		}
+						_.each(drawPolyR,function(v,k){
+							if(k === 0){
+								str += (v.x + xPos + margin.left).toFixed(0)+','+(v.y + yPos).toFixed(0);
+							}else{
+								str +=' '+(v.x + xPos + margin.left).toFixed(0)+','+(v.y + (i*25)).toFixed(0);
+							} 
+						 		
+						})
+
+					
+					console.log(str)
+					return str;  
+				})
+				.attr("stroke","black")
+				.attr("stroke-width",1)   											
+		
+			var endTimePos =  x(endTime);
+			var endLine = svg.append("line")
+				.attr("x1", endTimePos + margin.left)
+				.attr("x2", endTimePos + margin.left)
+				.attr("y1", 0 + margin.top)
+				.attr("y2", height + height2 + margin.bottom)
+				.attr("stroke-dasharray", [9, 5])
+				.attr("stroke","#ccc") 
+				.attr("stroke-width", 1);
+		
+			var endTimeText = svg.append("text")
+				.attr("transform","translate("+(endTimePos+30)+","+(height-8)+") rotate(-90)")
+				.attr("class","endTime")
+				.text(new Date (endTime).getHours() + ':' +new Date (endTime).getMinutes() + ' - Estimated') 
+		
+			var currentTimePos =  x(benchData[3].values[benchData[3].values.length - 1].date);
+			var currentLine = svg.append("line")
+				.attr("x1", currentTimePos + margin.left)
+				.attr("x2", currentTimePos + margin.left)
+				.attr("y1", 0 + margin.top)
+				.attr("y2", height + height2 + margin.bottom)
+				.attr("stroke-dasharray", [9, 5]) 
+				.attr("stroke","#666")
+				.attr("stroke-width", 1);
+		
+			var currentTimeText = svg.append("text")
+				.attr("transform","translate("+(currentTimePos+56)+","+(height-4)+") rotate(-90)")
+				.attr("class","endTime")
+				.text(new Date (currentTimePos).getHours() + ':' +new Date (currentTimePos).getMinutes() + ' - Current') 
+
+		});
 		
 	} 
 

@@ -39,8 +39,8 @@ app.get('/', function(req, res){
   res.render('index', {});
 }); 
 
-var server = http.createServer(app).listen(5000, function(){
-  console.log('Express server listening on port 5000');
+var server = http.createServer(app).listen(1234, function(){
+  console.log('Express server listening on port 1234');
 });
 
 var io = require('socket.io').listen(server);

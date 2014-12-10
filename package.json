@@ -1,0 +1,21 @@
+{
+  "name": "web-sockets-decoupled",
+  "version": "0.0.1",
+  "description": "Simple exercise in decoupled web sockets",
+  "main": "api/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+	"express" : "*",
+	"ejs" : "*",
+	"socket.io" : "*",
+	"twitter" : "*",
+	"underscore" : "*"
+  },
+  "devDependencies": {
+    "jasmine": "*",
+    "jasmine-jquery": "*"
+  },
+  "author": "Callum Rimmer<callum@deadtrendy.co.uk> (http://www.deadtrendy.co.uk)"
+}
